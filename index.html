@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>허승규의 새로운 안동 | 2026 지방선거 마스터 플랜</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #F9F7F5;
+            color: #383838;
+        }
+       .hero-bg {
+            background-color: #EAE5E0;
+            background-image: linear-gradient(to top, #F9F7F5 0%, #EAE5E0 100%);
+        }
+       .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 3px solid transparent;
+            padding-bottom: 8px;
+        }
+       .nav-link.active,.nav-link:hover {
+            color: #4A6A5A;
+            border-bottom-color: #4A6A5A;
+        }
+       .section-title {
+            color: #4A6A5A;
+            font-weight: 900;
+        }
+       .tab-button {
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+       .tab-button.active {
+            background-color: #4A6A5A;
+            color: white;
+            border-color: #4A6A5A;
+        }
+       .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+       .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+       .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 280px;
+            max-height: 320px;
+        }
+        @media (min-width: 768px) {
+           .chart-container {
+                height: 320px;
+                max-height: 350px;
+            }
+        }
+       .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
+            aspect-ratio: 1/1;
+            background-color: #EFEBE9;
+            border-radius: 1rem;
+            border: 1px solid #D7CCC8;
+        }
+       .map-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #EF5350;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+       .map-dot:hover {
+            transform: scale(1.5);
+        }
+       .map-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+       .map-dot:hover .map-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+       .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+       .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+       .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+       .close-button:hover,
+       .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+       .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4A6A5A;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="scroll-smooth">
+
+    <!-- Header and Navigation -->
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav id="main-nav" class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-xl font-black text-gray-800">
+                <span class="text-[#4A6A5A]">허승규</span>의 새로운 안동
+            </div>
+            <div class="hidden md:flex space-x-8 font-semibold">
+                <a href="#summary" class="nav-link">보고서 요약</a>
+                <a href="#analysis" class="nav-link">선거 환경 분석</a>
+                <a href="#vision-safe" class="nav-link">안전한 안동</a>
+                <a href="#vision-vibrant" class="nav-link">활기찬 안동</a>
+                <a href="#vision-just" class="nav-link">정의로운 안동</a>
+                <a href="#voter-analysis" class="nav-link">유권자 분석</a>
+                <a href="#campaign-strategy" class="nav-link">캠페인 전략</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero-bg text-center py-20 md:py-32 px-6">
+            <h1 class="text-4xl md:text-6xl font-black mb-4 text-gray-800 leading-tight">시민의 삶을 바꾸는 <span class="text-[#4A6A5A]">새로운 안동</span></h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                허승규가 만들겠습니다. 재난에 강하고, 경제가 활기차며, 행정이 정의로운 안동.
+                실현 가능한 비전으로 안동의 미래를 열겠습니다.
+            </p>
+        </section>
+
+        <div class="container mx-auto px-6 py-16">
+            <!-- Report Summary Section -->
+            <section id="summary" class="scroll-mt-20 mb-24">
+                <h2 class="text-4xl text-center mb-4 section-title">킹메이커의 비책: 허승규 후보의 2026년 지방선거 승리 마스터 플랜</h2>
+                <div class="bg-white p-8 rounded-2xl shadow-xl">
+                    <h3 class="text-2xl font-bold mb-4 text-center">보고서 요약</h3>
+                    <p class="text-gray-700 leading-relaxed text-center max-w-4xl mx-auto">
+                        허승규 후보는 2026년 지방선거에서 **'시민의 삶을 바꾸는 새로운 안동'**이라는 비전 아래,
+                        **'안전', '활기', '정의'**라는 세 가지 핵심 가치를 중심으로 캠페인을 전개해야 합니다.
+                        안동시의 고질적인 재정 비효율성 문제를 정면 돌파하고, 산불 피해 복구 및 예방에 대한 실질적인 대안을 제시하며,
+                        청년 유입과 지역 경제 활성화에 대한 구체적인 로드맵을 통해 유권자들에게
+                        **'준비된 혁신가이자 실용가'**의 이미지를 각인시켜야 합니다.
+                        2022년 선거 데이터를 면밀히 분석하여 강남동의 강세와 임하면, 남선면의 약세를 보완하는 맞춤형 전략을 수립하고,
+                        유튜브를 통한 진정성 있는 소통으로 지지층을 확장하는 것이 승리의 핵심입니다.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Election Analysis Section -->
+            <section id="analysis" class="scroll-mt-20 mb-24">
+                <h2 class="text-4xl text-center mb-4 section-title">1. 선거 환경 분석 및 허승규 후보의 강점</h2>
+                <div class="bg-white p-8 rounded-2xl shadow-xl">
+                    <h3 class="text-2xl font-bold mb-6 text-center">1.1. 안동시의 인구 및 재정 현황 진단</h3>
+                    <div class="grid md:grid-cols-2 gap-8 items-center mb-12">
+                        <div>
+                            <p class="text-lg text-gray-700 mb-4">
+                                안동시는 1읍 13면 10동으로 구성된 넓은 면적(1,522.27㎢)에 인구 15만 3,754명(2025년 6월 기준)으로 인구 밀도가 101.00명/㎢에 불과한 도농 복합 도시입니다. 인구 유입이 많지 않아 토박이 비율이 70~75%에 달하며, 시내에 인구의 70% 이상이 집중되어 있습니다. [1]
+                            </p>
+                            <div class="chart-container"><canvas id="populationDensityChart"></canvas></div>
+                            <p class="text-center text-sm text-gray-500 mt-2">안동시 인구 밀도 (2025년 6월 기준)</p>
+                        </div>
+                        <div>
+                            <p class="text-lg text-gray-700 mb-4">
+                                가장 심각한 문제는 재정입니다. 2024년 기준 안동시의 재정자립도는 9.8%로, 경상북도 시 평균(31.5%)과 전국 평균(48.6%)에 크게 못 미치는 전국 최하위권 수준입니다. 자체 수입은 1,440억 원에 불과하며, 이전재원(지방교부세, 보조금 등)에 대한 의존도가 1조 2,081억 원으로 매우 높습니다. 특히 2024년 보통교부세 감소액이 466억 원에 달해 재정적 어려움이 가중되고 있습니다.
+                            </p>
+                            <div class="chart-container"><canvas id="financialStatusChart"></canvas></div>
+                            <p class="text-center text-sm text-gray-500 mt-2">안동시 재정 현황 (2024년 기준)</p>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">5년 연속 통합재정수지 적자</h4>
+                            <p class="text-gray-700">2020년부터 2024년까지 한 번도 흑자 전환 못하고 계속 적자를 기록 중입니다. [2]</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">매년 2,000억 원 이상 불용예산 발생</h4>
+                            <p class="text-gray-700">막대한 이월금(불용예산)은 예산 편성 및 집행의 비효율성을 명확히 보여줍니다. [3, 4]</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">민간 버스 운수업체에 막대한 재정 지원</h4>
+                            <p class="text-gray-700">2020년 기준 193억 원의 공공 자금이 민간 부문에 투입되고 있습니다. [5]</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">결론: 돈이 없는 것이 아니라, 비효율적으로 쓰고 있습니다.</h4>
+                            <p class="text-gray-700">기존 예산을 재배분하고 효율화하면, 새로운 공공 서비스를 충분히 만들 수 있습니다.</p>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-6 mt-12 text-center">1.2. 허승규 후보의 정치적 자산 및 강점</h3>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">꾸준한 지지세 확장</h4>
+                            <p class="text-gray-700">2018년 16.54%, 2022년 18.00% 득표율 기록. 특히 강남동에서 25.9%로 1위 득표하며 '안동 강남좌파' 별명 획득.</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">정책 전문성 및 비전</h4>
+                            <p class="text-gray-700">대중교통을 '보편적 시민권'으로 인식하며, 버스 투자를 시민 이동권 보장 효용으로 간주.</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">젊고 혁신적인 이미지</h4>
+                            <p class="text-gray-700">30대 초반 재도전 이력과 소신 있는 정치 활동으로 기성 정치와 차별화.</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">유튜브 소통 경험</h4>
+                            <p class="text-gray-700">기후 불평등 해소 등 정책 비전 전달을 위한 유튜브 채널 운영 경험 보유. [6, 7, 8, 9, 10]</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vision 1: Safe Andong -->
+            <section id="vision-safe" class="scroll-mt-20 mb-24">
+                <h2 class="text-4xl text-center mb-4 section-title">2.1. 안전한 안동: 재난, 미리 막고 신속히 회복합니다</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                    반복되는 산불 피해로 고통받는 시민들의 눈물을 닦아드리는 것이 최우선입니다.
+                    단순한 복구를 넘어, 스마트 기술로 재난을 예방하는 안전 시스템을 구축하겠습니다.
+                </p>
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="map-container p-4">
+                        <div class="map-dot" style="top: 30%; left: 50%;">
+                            <div class="map-tooltip" style="bottom: 125%; left: 50%; transform: translateX(-50%);">임하면 추목리: 주택 전소, 식수난 [11, 12, 13, 14, 15]</div>
+                        </div>
+                        <div class="map-dot" style="top: 55%; left: 65%;">
+                            <div class="map-tooltip" style="bottom: 125%; left: 50%; transform: translateX(-50%);">길안면: 대규모 산림 소실 [16, 17]</div>
+                        </div>
+                        <div class="map-dot" style="top: 70%; left: 40%;">
+                            <div class="map-tooltip" style="bottom: 125%; left: 50%; transform: translateX(-50%);">남선면: 전기/통신 두절, 산불 피해 [18, 16, 17]</div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <p class="text-center text-gray-500 font-bold text-lg">안동시 산불<br>주요 피해 지역</p>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="card bg-white p-6 rounded-xl shadow-lg border-l-4 border-[#4A6A5A]">
+                            <h3 class="font-bold text-xl mb-2">신속하고 충분한 피해 복구 지원</h3>
+                            <p class="text-gray-700">'원스톱 피해 지원 창구'를 개설하여 행정 절차를 간소화하고, 중앙 정부와 협력하여 실질적인 보상과 지원을 신속하게 제공하겠습니다. [11, 12, 13, 14, 15, 19, 20, 17, 21]</p>
+                        </div>
+                        <div class="card bg-white p-6 rounded-xl shadow-lg border-l-4 border-[#4A6A5A]">
+                            <h3 class="font-bold text-xl mb-2">'디지털 재난 예방 시스템' 도입</h3>
+                            <p class="text-gray-700">산불 감시 드론, AI 예측 시스템 등 스마트 기술을 도입하여 '골든 타임'을 확보하고, 시민의 생명과 재산을 선제적으로 보호하겠습니다. (전주시 3D 지도 사례 벤치마킹) [22]</p>
+                        </div>
+                        <button id="ask-disaster-btn" class="mt-6 w-full py-3 px-6 bg-[#4A6A5A] text-white font-bold rounded-lg shadow-lg hover:bg-opacity-90 transition-all duration-300">
+                            ✨ 재난 예방 아이디어 제미나이에게 물어보기
+                        </button>
+                    </div>
+                </div>
+                <p class="text-center text-gray-600 mt-12 text-lg font-semibold">
+                    메시지: "반복되는 재난에 더 이상 안동 시민이 고통받지 않도록, 허승규가 스마트한 재난 예방 시스템과 신속한 복구 지원으로 안전한 안동을 만들겠습니다."
+                </p>
+            </section>
+
+            <!-- Vision 2: Vibrant Andong -->
+            <section id="vision-vibrant" class="scroll-mt-20 mb-24">
+                <h2 class="text-4xl text-center mb-4 section-title">2.2. 활기찬 안동: 시민의 발이 되고, 경제에 숨을 불어넣습니다</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                    이동권은 보편적 권리입니다. 낭비되는 세금을 시민의 발로 돌려드리고,
+                    혁신적인 정책으로 지역 경제를 살려 청년이 돌아오는 안동을 만들겠습니다.
+                </p>
+                <div class="flex justify-center mb-8">
+                    <div class="bg-white p-2 rounded-full shadow-md">
+                        <button id="tab-bus" class="tab-button active font-semibold py-2 px-6 rounded-full">안동형 행복버스</button>
+                        <button id="tab-economy" class="tab-button font-semibold py-2 px-6 rounded-full">지역경제/청년</button>
+                    </div>
+                </div>
+
+                <div id="content-bus">
+                    <div class="text-center mb-12">
+                        <h3 class="text-2xl font-bold">문제는 돈이 아니라, 비효율입니다</h3>
+                        <p class="text-gray-600">안동의 재정, 이대로 괜찮을까요?</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-8 mb-16">
+                        <div class="chart-container"><canvas id="busFinancialChart"></canvas></div>
+                        <div class="chart-container"><canvas id="busSubsidyChart"></canvas></div>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl shadow-xl">
+                        <h3 class="text-2xl font-bold text-center mb-8">해결책: 허승규의 '안동형 행복버스'</h3>
+                        <div class="grid md:grid-cols-3 gap-8 text-center">
+                            <div class="card p-6 bg-gray-50 rounded-xl">
+                                <p class="text-5xl mb-3">🔄</p>
+                                <h4 class="font-bold text-lg">예산 재배분</h4>
+                                <p class="text-sm text-gray-600 mt-1">민간 지원금(193억)과 불용예산(2,000억+)을 공공 버스 재원으로 전환하여 추가 세금 부담 없이 시행합니다. [5, 3, 4]</p>
+                            </div>
+                            <div class="card p-6 bg-gray-50 rounded-xl">
+                                <p class="text-5xl mb-3">🚌</p>
+                                <h4 class="font-bold text-lg">하이브리드 모델</h4>
+                                <p class="text-sm text-gray-600 mt-1">성동구 '성공버스' 사례를 벤치마킹하되, 도심은 고정노선, 농촌은 수요응답형(DRT)으로 안동 지리에 최적화된 시스템을 구축합니다.</p>
+                            </div>
+                            <div class="card p-6 bg-gray-50 rounded-xl">
+                                <p class="text-5xl mb-3">❤️</p>
+                                <h4 class="font-bold text-lg">교통약자 우선 & 정부 지원 유치</h4>
+                                <p class="text-sm text-gray-600 mt-1">청소년(연간 100만원 상한)과 70세 이상 어르신 무상교통을 우선 도입하고, 지방소멸대응기금, 벽지노선 지원 등 광역/중앙 정부 지원을 적극 유치합니다. [5, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="ask-bus-btn" class="mt-12 w-full py-3 px-6 bg-[#4A6A5A] text-white font-bold rounded-lg shadow-lg hover:bg-opacity-90 transition-all duration-300">
+                        ✨ 공공버스 정책 제미나이에게 물어보기
+                    </button>
+                    <p class="text-center text-gray-600 mt-12 text-lg font-semibold">
+                        메시지: "안동의 낭비되는 세금을 시민의 발로 돌려드리겠습니다. 허승규의 '안동형 행복버스'는 안동의 모든 시민에게 편리하고 안전한 이동권을 보장할 것입니다."
+                    </p>
+                </div>
+
+                <div id="content-economy" class="hidden">
+                     <div class="grid md:grid-cols-2 gap-8">
+                         <div class="card bg-white p-8 rounded-2xl shadow-xl">
+                             <h3 class="text-2xl font-bold mb-4">지역 경제 활성화</h3>
+                             <p class="text-gray-600 mb-6">성공 사례를 벤치마킹하여 지역 소상공인과 시민 모두에게 이익이 되는 스마트 경제 플랫폼을 구축합니다.</p>
+                             <div class="space-y-4">
+                                 <div class="bg-green-50 p-4 rounded-lg">
+                                     <p class="font-semibold">지역화폐 연계 스마트 플랫폼 구축</p>
+                                     <p class="text-sm text-gray-700">인천e음이나 브리스틀파운드 벤치마킹. 안동사랑상품권 [40]과 연계하여 지역 소상공인 지원 및 시민 캐시백 혜택 제공.</p>
+                                 </div>
+                                 <div class="bg-blue-50 p-4 rounded-lg">
+                                     <p class="font-semibold">주민 생활 불편 현안 해결</p>
+                                     <p class="text-sm text-gray-700">남선면 구미리 음식물 쓰레기 처리장 악취 [41] 및 아스콘 제조회사 입주 문제 [42] 등 주민 현안을 해결하여 정주 여건 개선.</p>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="card bg-white p-8 rounded-2xl shadow-xl">
+                             <h3 class="text-2xl font-bold mb-4">청년이 돌아오는 안동</h3>
+                             <p class="text-gray-600 mb-6">청년들이 안동에서 꿈을 펼치고 정착할 수 있도록 실질적이고 파격적인 지원책을 마련합니다.</p>
+                             <div class="space-y-4">
+                                 <div class="bg-yellow-50 p-4 rounded-lg">
+                                     <p class="font-semibold">'청년 창업 및 귀농귀촌 지원 패키지' 확대</p>
+                                     <p class="text-sm text-gray-700">학업장려금 지원사업 성공 사례를 바탕으로, 청년 창업가 및 귀농귀촌 희망자에게 초기 정착 자금, 컨설팅, 주거, 기술 교육 등 맞춤형 패키지 제공. (경기도 청년농부 [43, 44], 보성군 귀농창업 자금 사례 참고)</p>
+                                 </div>
+                                  <div class="bg-purple-50 p-4 rounded-lg">
+                                     <p class="font-semibold">스마트농업 연계</p>
+                                     <p class="text-sm text-gray-700">임하면 스마트농업 표준모델 개발 사업 [45, 46, 47]과 연계하여 청년 농업인 유입을 적극 촉진합니다.</p>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                 <p class="text-center text-gray-600 mt-12 text-lg font-semibold">
+                    메시지: "청년이 돌아오고, 지역 경제가 살아나는 안동! 허승규가 혁신적인 정책으로 안동의 미래를 열겠습니다."
+                </p>
+            </section>
+
+            <!-- Vision 3: Just Andong -->
+            <section id="vision-just" class="scroll-mt-20 mb-24">
+                <h2 class="text-4xl text-center mb-4 section-title">2.4. 정의로운 안동: 시민의 목소리가 시정이 됩니다</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                    '혁신가'의 비전과 '실용가'의 역량으로 낡은 관습을 깨겠습니다.
+                    투명한 행정과 데이터 기반의 정책으로 시민에게 신뢰받는 시정을 펼치겠습니다.
+                </p>
+                <div class="bg-white grid md:grid-cols-2 gap-8 p-10 rounded-2xl shadow-xl">
+                    <div>
+                        <h3 class="font-bold text-2xl mb-2">문제점: 불투명한 예산 집행 및 소통 부재</h3>
+                        <p class="text-gray-600">안동시의 반복적인 이월금 및 잉여금 발생 [3]과 시장의 잦은 해외 출장 논란 [48] 등은 시민들의 불신을 야기할 수 있습니다.</p>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="card bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-lg">예산 집행의 투명성 강화</h4>
+                            <p class="text-sm text-gray-700">불용예산 원인 분석 및 예산 편성/집행 과정 투명 공개. 주민참여예산제 실질적 활성화.</p>
+                        </div>
+                        <div class="card bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-lg">시민 소통 채널 확대</h4>
+                            <p class="text-sm text-gray-700">'젊치인'으로서 기존 정치가 대변하지 못했던 사람들을 공론장으로 초대하고, 지역 현안 토론회 활성화.</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-center text-gray-600 mt-12 text-lg font-semibold">
+                    메시지: "시민의 세금은 시민을 위해 쓰여야 합니다. 허승규는 투명하고 정의로운 행정으로 시민의 신뢰를 회복하겠습니다."
+                </p>
+            </section>
+
+            <!-- Voter Analysis Section -->
+            <section id="voter-analysis" class="scroll-mt-20 mb-24">
+                <h2 class="text-4xl text-center mb-4 section-title">3. 유권자 통계 분석 및 맞춤 전략</h2>
+                <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">
+                    2022년 안동시의원 선거 데이터를 통해 허승규 후보의 지지 기반과 취약 지역을 명확히 파악하고, 각 지역에 맞는 맞춤형 전략을 수립합니다.
+                </p>
+                <div class="bg-white p-8 rounded-2xl shadow-xl">
+                    <h3 class="text-2xl font-bold mb-6 text-center">3.1. 2022년 지방선거 득표율 상세 분석 (안동시의원 마선거구)</h3>
+                    <p class="text-center text-gray-700 mb-8">
+                        허승규 후보는 2022년 안동시의원 마선거구(강남동, 남선면, 임하면)에서 총 1,346표(18.00%)를 득표했습니다. [49, 50]
+                    </p>
+                    <div class="chart-container"><canvas id="voteShareChart"></canvas></div>
+                    <p class="text-center text-sm text-gray-500 mt-2">허승규 후보 2022년 지방선거 지역구별 득표율</p>
+                    <div class="grid md:grid-cols-2 gap-8 mt-12">
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">강남동의 압도적 지지 (25.9%)</h4>
+                            <p class="text-gray-700">젊은 세대 인구 유입이 많은 지역으로, 허 후보의 젊고 혁신적인 이미지가 어필했음을 시사합니다.</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">임하면(3.8%), 남선면(7.6%)의 낮은 지지율</h4>
+                            <p class="text-gray-700">농촌 지역으로, 산불 피해 등 고유한 현안과 보수적인 성향이 강할 수 있습니다. [50]</p>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-6 mt-12 text-center">3.2. 지역구별 맞춤 공략</h3>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="card bg-white p-6 rounded-xl shadow-lg border-t-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-xl mb-2 text-center">강남동 (핵심 지지 기반 강화)</h4>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                <li>**공공 버스 정책 집중 홍보:** 청소년 무상교통, 편리한 도심 접근성 강조.</li>
+                                <li>**'스마트 안동' 비전 제시:** 디지털 재난 예방, 스마트 경제 플랫폼 등 혁신 정책 강조.</li>
+                                <li>**온라인 캠페인 강화:** 유튜브, SNS 소통 강화.</li>
+                                <li>**주요 현안:** 강남초 학교복합시설 사업 등 교육 현안. [51, 52]</li>
+                            </ul>
+                        </div>
+                        <div class="card bg-white p-6 rounded-xl shadow-lg border-t-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-xl mb-2 text-center">임하면 (취약 지역 집중 공략)</h4>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                <li>**산불 피해 복구 최우선:** 피해 주민 고충 경청, 신속한 복구 지원, 디지털 재난 예방 의지 피력.</li>
+                                <li>**농촌 맞춤형 교통:** 수요 응답형 교통(DRT) 도입 강조.</li>
+                                <li>**스마트 농업 연계:** 임하면 스마트농업 표준모델 개발 사업 [45, 46] 연계.</li>
+                                <li>**주요 현안:** 산불 피해 [11, 12, 13, 14, 53, 15, 54, 19, 17, 55, 56], 임하댐 규제 [57, 47], 낮은 소득.[57]</li>
+                            </ul>
+                        </div>
+                        <div class="card bg-white p-6 rounded-xl shadow-lg border-t-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-xl mb-2 text-center">남선면 (환경 문제 해결 및 경제 활성화)</h4>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                <li>**환경 문제 해결 의지:** 음식물 쓰레기 처리장 악취 [41], 아스콘 제조회사 입주 [42] 등 주민 고충 해결.</li>
+                                <li>**지역 경제 활성화 연계:** 지역 일자리 사업 [33, 58] 및 지역화폐 연계 플랫폼 강조.</li>
+                                <li>**교통 편의 증진:** 농촌 지역 특성 고려한 공공 버스 정책.</li>
+                                <li>**주요 현안:** 환경 유해 시설 문제.[18, 16, 42, 59, 60]</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Campaign Strategy Section -->
+            <section id="campaign-strategy" class="scroll-mt-20 mb-24">
+                <h2 class="text-4xl text-center mb-4 section-title">4. 선거 캠페인 및 커뮤니케이션 전략</h2>
+                <div class="bg-white p-8 rounded-2xl shadow-xl">
+                    <h3 class="text-2xl font-bold mb-6 text-center">4.1. 유튜브 활용 극대화: '진정성'과 '정책 증거'의 결합</h3>
+                    <p class="text-gray-700 mb-6">
+                        허승규 후보는 이미 유튜브 채널을 운영하고 있으며 [7, 8, 9, 10], 이를 통해 기후 불평등 해소 등 자신의 정책 비전을 전달해왔습니다. [6] 유튜브는 유권자들의 정치 참여와 정보 소비 형태를 급격히 변화시키고 있으며 [61], 정치인의 진정성 있는 소통에 긍정적인 반응을 보입니다. [62, 61, 63, 64, 65, 66, 49]
+                    </p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">콘텐츠 전략: '정책 증거' 기반의 설득</h4>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                <li>안동시 재정 현황(재정자립도 9.8%, 불용예산 2,000억+, 민간 버스 지원금 193억)과 성동구 '성공버스' 예산 효율성(연간 20억 추정) [67, 68] 데이터를 인포그래픽, 짧은 영상으로 시각화. "안동은 돈이 없는 것이 아니라, 비효율적으로 쓰고 있다" 메시지 각인. [69]</li>
+                                <li>'안동형 행복버스' 가상 체험 웹 애플리케이션 적극 활용.</li>
+                                <li>홍준표, 유시민, 이재명 등 성공적인 정치인 유튜브 채널 벤치마킹하여 친근하고 솔직한 일상 공유.</li>
+                                <li>녹색당 소속 강점 [70, 71, 72] 부각: 청년 환경 운동가 홍다경이나 서울환경운동연합 [73, 66, 74, 75, 76] 채널 참고.</li>
+                            </ul>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">유튜브 운영 유의사항</h4>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                <li>**선거 광고 금지:** 공직선거법상 유튜브 광고는 금지되지만, 일반 채널을 통한 자유로운 후보자 홍보 행위는 가능. [77, 78, 79, 80, 81, 82, 2, 83]</li>
+                                <li>**허위 사실/비방 금지:** 허위 사실 공표나 비방은 처벌 대상이므로 사실에 기반한 콘텐츠 제작 유의. [79, 82]</li>
+                                <li>**딥페이크 영상 엄격히 금지:** 선거일 90일 전부터 딥페이크 영상 제작·편집·유포·상영·게시 금지. [84]</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-6 mt-12 text-center">4.2. 현장 유세 및 조직 활동</h3>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">2022년 선거 캠프 운영 경험 활용</h4>
+                            <p class="text-gray-700">선거사무장, 회계책임자, 디자인, 홍보, 정책 등 기존 캠프 구성원들의 경험을 적극 활용하고, 예비 선거기간 및 본 선거기간 운동 일정을 참고하여 효율적인 유세 동선 기획. [50]</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">지역구별 맞춤 유세</h4>
+                            <p class="text-gray-700">강남동은 아파트 단지 및 상가 위주, 임하면/남선면은 산불 피해 지역 및 농촌 마을 '찾아가는 유세' 강화.</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">자원 활동가 및 지지 조직 활성화</h4>
+                            <p class="text-gray-700">2022년 선거에서 활약했던 자원 활동가들과 후원회장단을 다시 조직하고, 이들의 적극적인 참여를 독려하여 풀뿌리 선거 운동의 동력을 확보. [50]</p>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-6 mt-12 text-center">4.3. 재정 관리 및 투명성</h3>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">과거 선거 비용 분석</h4>
+                            <p class="text-gray-700">2022년 선거에서 총 3,146만 4,880원의 선거 비용이 지출되었으며, 후원회 기부금과 정당 지원금으로 충당. 이를 바탕으로 2026년 선거 예산 효율적 계획. [50]</p>
+                        </div>
+                        <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                            <h4 class="font-bold text-lg mb-2">'세금 낭비' 프레임 활용</h4>
+                            <p class="text-gray-700">안동시의 막대한 불용예산과 민간 버스 지원금 문제를 지속적으로 제기하며, 허 후보의 정책이 '새로운 세금'이 아닌 '기존 세금의 효율적 재배분'임을 강조하여 재정적 책임감 부각.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Final Proposal Section -->
+            <section id="final-proposal" class="scroll-mt-20">
+                <h2 class="text-4xl text-center mb-4 section-title">5. 킹메이커의 최종 제언: 허승규 후보의 포지셔닝</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                    허승규 후보는 이번 선거에서 '낡은 관습을 깨고 새로운 안동을 만드는 **혁신가**'이자,
+                    '시민의 삶을 진심으로 고민하는 **실용가**'로 포지셔닝해야 합니다.
+                </p>
+                <div class="bg-white grid md:grid-cols-2 gap-8 p-10 rounded-2xl shadow-xl">
+                    <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                        <h3 class="font-bold text-xl mb-2">혁신가 (Innovator)</h3>
+                        <p class="text-gray-700">기존의 비효율적인 행정(불용예산, 민간 버스 지원금)을 과감하게 비판하고, '디지털 재난 시스템'이나 '안동형 행복버스' 같은 새로운 해결책을 제시하는 모습을 통해 유권자들에게 신선한 충격을 줘야 합니다.</p>
+                    </div>
+                    <div class="card bg-gray-50 p-6 rounded-xl shadow-md border-l-4 border-[#4A6A5A]">
+                        <h3 class="font-bold text-xl mb-2">실용가 (Pragmatist)</h3>
+                        <p class="text-gray-700">성동구 '성공버스' 사례와 안동시의 구체적인 재정 데이터, 그리고 산불 피해 복구와 같은 지역의 아픈 현안에 대한 실질적인 해결 의지를 보여줌으로써, 그의 정책이 단순히 이상적인 공약이 아니라 현실적으로 실현 가능함을 입증해야 합니다.</p>
+                    </div>
+                </div>
+                <p class="text-center text-gray-600 mt-12 text-lg font-semibold">
+                    이러한 포지셔닝을 통해, 허승규 후보는 유권자들에게 '안동의 미래를 맡길 수 있는 준비된 인재'라는 확신을 심어줄 수 있을 것입니다. 특히, 젊은 세대의 지지를 기반으로 임하면과 남선면 등 취약 지역의 현안을 해결하는 데 집중하여 지지층을 확장한다면, 2026년 지방선거에서 유의미한 성과를 넘어 승리까지도 바라볼 수 있을 것입니다.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p class="font-semibold">허승규의 새로운 안동 | 2026 지방선거 마스터 플랜</p>
+            <p class="text-sm text-gray-400 mt-2">본 내용은 제공된 연구 자료 및 유권자 통계 분석을 기반으로 제작되었습니다.</p>
+        </div>
+    </footer>
+
+    <!-- Modal for Gemini API responses -->
+    <div id="geminiModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 class="text-xl font-bold mb-4" id="modal-title"></h3>
+            <div id="modal-body" class="text-gray-700">
+                <div id="loading-spinner" class="loading-spinner mx-auto hidden"></div>
+                <div id="modal-text"></div>
+                <div id="modal-form" class="mt-4 hidden">
+                    <input type="text" id="user-input1" placeholder="" class="w-full p-2 border border-gray-300 rounded-md mb-2">
+                    <input type="text" id="user-input2" placeholder="" class="w-full p-2 border border-gray-300 rounded-md">
+                    <button id="generate-btn" class="mt-4 w-full py-2 bg-[#4A6A5A] text-white rounded-md">생성하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOMContentLoaded 이벤트 리스너: 문서가 완전히 로드된 후 스크립트를 실행
+        document.addEventListener('DOMContentLoaded', function () {
+            // Chart.js를 사용하여 인구 밀도 차트 생성
+            const populationDensityCtx = document.getElementById('populationDensityChart').getContext('2d');
+            new Chart(populationDensityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['안동시 인구 밀도 (명/㎢)'],
+                    datasets: [{
+                        label: '인구 밀도',
+                        data: [101.00],
+                        backgroundColor: '#4A6A5A',
+                        borderColor: '#4A6A5A',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: '안동시 인구 밀도 (101.00명/㎢)', font: { size: 16 } },
+                        tooltip: { callbacks: { label: (c) => `인구 밀도: ${c.raw}명/㎢` } }
+                    },
+                    scales: { y: { beginAtZero: true, max: 150 } }
+                }
+            });
+
+            // Chart.js를 사용하여 재정 현황 도넛 차트 생성
+            const financialStatusCtx = document.getElementById('financialStatusChart').getContext('2d');
+            new Chart(financialStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['재정자립도 (자체수입)', '이전재원 의존도'],
+                    datasets: [{
+                        data: [9.8, 90.2],
+                        backgroundColor: ['#EF5350', '#E0E0E0'],
+                        borderColor: '#F9F7F5',
+                        borderWidth: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: '안동시 재정자립도 (9.8%)', font: { size: 16 } },
+                        tooltip: { callbacks: { label: (c) => `${c.label}: ${c.raw}%` } }
+                    }
+                }
+            });
+
+            // Chart.js를 사용하여 공공 버스 재정 현황 도넛 차트 생성
+            const busFinancialCtx = document.getElementById('busFinancialChart').getContext('2d');
+            new Chart(busFinancialCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['안동시 재정자립도', '의존 재원'],
+                    datasets: [{
+                        data: [9.8, 90.2],
+                        backgroundColor: ['#4A6A5A', '#E0E0E0'],
+                        borderColor: '#F9F7F5',
+                        borderWidth: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: '안동시 재정자립도 (9.8%)', font: { size: 16 } },
+                        tooltip: { callbacks: { label: (c) => `${c.label}: ${c.raw}%` } }
+                    }
+                }
+            });
+
+            // Chart.js를 사용하여 버스 보조금 비교 막대 차트 생성
+            const busSubsidyCtx = document.getElementById('busSubsidyChart').getContext('2d');
+            new Chart(busSubsidyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['안동시 민간 버스 지원금 (2020년)', '성동구 성공버스 연간 추정 운영비'],
+                    datasets: [{
+                        label: '금액 (억 원)',
+                        data: [193, 20],
+                        backgroundColor: ['#66BB6A', '#4A6A5A'],
+                        borderColor: ['#66BB6A', '#4A6A5A'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: '버스 운영 예산 비교 (단위: 억 원)', font: { size: 16 } },
+                        tooltip: { callbacks: { label: (c) => `${c.label}: 약 ${c.raw.toLocaleString()}억 원` } }
+                    },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Chart.js를 사용하여 득표율 막대 차트 생성
+            const voteShareCtx = document.getElementById('voteShareChart').getContext('2d');
+            new Chart(voteShareCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['강남동', '남선면', '임하면', '관외사전투표', '거소'],
+                    datasets: [{
+                        label: '득표율 (%)',
+                        data: [25.9, 7.6, 3.8, 17.1, 7.6],
+                        backgroundColor: ['#4A6A5A', '#BDBDBD', '#BDBDBD', '#66BB6A', '#BDBDBD'],
+                        borderColor: '#F9F7F5',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: '2022년 허승규 후보 지역구별 득표율', font: { size: 16 } },
+                        tooltip: { callbacks: { label: (c) => `${c.label}: ${c.raw}%` } }
+                    },
+                    scales: { y: { beginAtZero: true, max: 30 } }
+                }
+            });
+
+            // '활기찬 안동' 섹션의 탭 기능
+            const tabBus = document.getElementById('tab-bus');
+            const tabEconomy = document.getElementById('tab-economy');
+            const contentBus = document.getElementById('content-bus');
+            const contentEconomy = document.getElementById('content-economy');
+
+            tabBus.addEventListener('click', () => {
+                tabBus.classList.add('active');
+                tabEconomy.classList.remove('active');
+                contentBus.classList.remove('hidden');
+                contentEconomy.classList.add('hidden');
+            });
+
+            tabEconomy.addEventListener('click', () => {
+                tabEconomy.classList.add('active');
+                tabBus.classList.remove('active');
+                contentEconomy.classList.remove('hidden');
+                contentBus.classList.add('hidden');
+            });
+
+            // 스크롤 위치에 따라 내비게이션 링크 활성화 상태 변경
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section[id]');
+            
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    // 네비게이션 바 높이를 고려하여 오프셋 조정
+                    if (window.pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // Gemini API 통합 관련 요소 정의
+            const geminiModal = document.getElementById('geminiModal');
+            const closeModalBtn = document.querySelector('.close-button');
+            const modalTitle = document.getElementById('modal-title');
+            const modalText = document.getElementById('modal-text');
+            const modalForm = document.getElementById('modal-form');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const generateBtn = document.getElementById('generate-btn');
+
+            const askDisasterBtn = document.getElementById('ask-disaster-btn');
+            const askBusBtn = document.getElementById('ask-bus-btn');
+
+            let currentApiFunction = null;
+
+            // '재난 예방 아이디어' 버튼 클릭 이벤트 핸들러
+            askDisasterBtn.addEventListener('click', () => {
+                modalTitle.textContent = '재난 예방 아이디어 질문하기';
+                modalText.innerHTML = '<p>안동시의 도농 복합 지리적 특성을 고려한 재난 예방 아이디어에 대해 질문해주세요.</p><p>(예: 산불 감시 드론을 어느 지역에 집중 배치하면 좋을까요?)</p>';
+                modalForm.classList.remove('hidden');
+                document.getElementById('user-input1').placeholder = '질문 내용을 입력해주세요';
+                document.getElementById('user-input2').classList.add('hidden');
+                geminiModal.style.display = 'flex';
+                currentApiFunction = callGeminiDisaster;
+            });
+
+            // '공공버스 정책 체험하기' 버튼 클릭 이벤트 핸들러
+            askBusBtn.addEventListener('click', () => {
+                modalTitle.textContent = '공공버스 정책 체험하기';
+                modalText.innerHTML = '<p>당신의 나이와 직업을 입력하시면, 정책이 당신의 일상에 어떤 영향을 미칠지 이야기로 들려드립니다.</p>';
+                modalForm.classList.remove('hidden');
+                document.getElementById('user-input1').placeholder = '당신의 나이나 직업은?';
+                document.getElementById('user-input2').placeholder = '거주하는 동네는?';
+                document.getElementById('user-input2').classList.remove('hidden');
+                geminiModal.style.display = 'flex';
+                currentApiFunction = callGeminiBus;
+            });
+
+            // 모달 닫기 버튼 이벤트
+            closeModalBtn.addEventListener('click', () => {
+                geminiModal.style.display = 'none';
+                resetModal();
+            });
+
+            // 모달 바깥 영역 클릭 시 닫기
+            window.addEventListener('click', (event) => {
+                if (event.target == geminiModal) {
+                    geminiModal.style.display = 'none';
+                    resetModal();
+                }
+            });
+
+            // 모달 초기화 함수
+            function resetModal() {
+                modalForm.classList.add('hidden');
+                document.getElementById('user-input1').value = '';
+                document.getElementById('user-input2').value = '';
+                modalText.textContent = '';
+                loadingSpinner.classList.add('hidden');
+            }
+
+            // '생성하기' 버튼 클릭 이벤트 핸들러
+            generateBtn.addEventListener('click', () => {
+                if (currentApiFunction) {
+                    currentApiFunction();
+                }
+            });
+
+            let retryCount = 0;
+            const maxRetries = 5;
+
+            // Gemini API 호출 함수
+            async function callGeminiAPI(prompt, onResponse) {
+                loadingSpinner.classList.remove('hidden');
+                modalText.classList.add('hidden');
+                modalForm.classList.add('hidden');
+                
+                const masterPlanData = `허승규 후보의 안동시 선거 마스터 플랜 보고서 내용:
+- 안동시 재정자립도: 9.8% (전국 최하위권)
+- 연간 불용예산: 약 2,000억 원 이상
+- 기존 민간 버스업체 지원금: 2020년 기준 193억 원
+- 공공 버스 정책: 성동구 성공버스 벤치마킹, 농촌 수요응답형(DRT)과 도시 셔틀 결합.
+- 재원 조달: 기존 보조금 재배분, 광역/중앙 정부 지원 유치 (지방소멸대응기금, 벽지노선 지원 등)
+- 재난 정책: 산불 피해가 심했던 임하면, 남선면 등 지역에 대한 신속 복구 지원 및 디지털 재난 시스템(드론, AI 예측) 도입.
+- 지역구 득표율: 강남동 25.9% (압도적 지지), 임하면 3.8%, 남선면 7.6% (낮은 지지)
+- 주요 현안: 임하면(산불 피해), 남선면(음식물 쓰레기 처리장 악취), 강남동(젊은 세대 유입, 교육 현안).`;
+                
+                const fullPrompt = `${masterPlanData}\n\n위의 정보를 참고하여 아래 질문에 답해주세요. 사용자가 이해하기 쉽게, 친절하고 자세하게 설명해 주세요. 질문: ${prompt}`;
+
+                try {
+                    const chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: fullPrompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        if (response.status === 429 && retryCount < maxRetries) {
+                            const delay = Math.pow(2, retryCount) * 1000;
+                            retryCount++;
+                            setTimeout(() => callGeminiAPI(prompt, onResponse), delay);
+                            return;
+                        } else {
+                            throw new Error(`API error: ${response.statusText}`);
+                        }
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        onResponse(text);
+                    } else {
+                        onResponse("응답을 생성하는 데 실패했습니다. 다시 시도해주세요.");
+                    }
+                } catch (error) {
+                    console.error('API 호출 중 오류 발생:', error);
+                    onResponse("API 호출 중 오류가 발생했습니다. 다시 시도해주세요.");
+                } finally {
+                    loadingSpinner.classList.add('hidden');
+                    modalText.classList.remove('hidden');
+                }
+            }
+
+            // '재난 예방' API 호출 함수
+            async function callGeminiDisaster() {
+                const question = document.getElementById('user-input1').value;
+                if (!question.trim()) {
+                    modalText.textContent = "질문을 입력해주세요.";
+                    return;
+                }
+                const prompt = `안동시의 도농 복합 특성을 고려하여 재난 예방 정책에 대한 다음 질문에 답변해주세요: "${question}"`;
+                await callGeminiAPI(prompt, (response) => {
+                    modalText.textContent = response;
+                });
+            }
+
+            // '공공버스' API 호출 함수
+            async function callGeminiBus() {
+                const ageJob = document.getElementById('user-input1').value;
+                const location = document.getElementById('user-input2').value;
+                if (!ageJob.trim() || !location.trim()) {
+                    modalText.textContent = "나이/직업과 거주하는 동네를 모두 입력해주세요.";
+                    return;
+                }
+                const prompt = `나이/직업이 '${ageJob}'이고 안동의 '${location}'에 사는 사람을 위해, 허승규의 공공버스 정책이 어떤 긍정적인 영향을 미칠지 구체적인 시나리오를 작성해줘.`;
+                await callGeminiAPI(prompt, (response) => {
+                    modalText.textContent = response;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
